@@ -124,13 +124,13 @@ void Fuzzer::showStats(const Mutation &mutation, const tuple<unordered_set<uint6
   printf(bLTR bV5 cGRN " oracle yields " cRST bV bV10 bV5 bV bTTR bV2 bV10 bV bBTR bV bV2 bV5 bV5 bV2 bV2 bV5 bV bRTR "\n");
   printf(bH "            gasless send : %s " bH " dangerous delegatecall : %s " bH "\n", toResult(vulnerabilities[GASLESS_SEND]).c_str(), toResult(vulnerabilities[DELEGATE_CALL]).c_str());
   printf(bH "      exception disorder : %s " bH "         freezing ether : %s " bH "\n", toResult(vulnerabilities[EXCEPTION_DISORDER]).c_str(), toResult(vulnerabilities[FREEZING]).c_str());
-  printf(bH "              reentrancy : %s " bH "       integer overflow : %s " bH "\n", toResult(vulnerabilities[REENTRANCY]).c_str(), toResult(vulnerabilities[OVERFLOW]).c_str());
-  printf(bH "    timestamp dependency : %s " bH "      integer underflow : %s " bH "\n", toResult(vulnerabilities[TIME_DEPENDENCY]).c_str(), toResult(vulnerabilities[UNDERFLOW]).c_str());
+  printf(bH "              reentrancy : %s " bH "       integer overflow : %s " bH "\n", toResult(vulnerabilities[REENTRANCY]).c_str(), toResult(vulnerabilities[OVERFLOWING]).c_str());
+  printf(bH "    timestamp dependency : %s " bH "      integer underflow : %s " bH "\n", toResult(vulnerabilities[TIME_DEPENDENCY]).c_str(), toResult(vulnerabilities[UNDERFLOWING]).c_str());
   printf(bH " block number dependency : %s " bH "%s" bH "\n", toResult(vulnerabilities[NUMBER_DEPENDENCY]).c_str(), padStr(" ", 32).c_str());
   printf(bBL bV20 bV2 bV10 bV5 bV2 bV bBTR bV10 bV5 bV20 bV2 bV2 bBR "\n");
 }
 
-void Fuzzer::writeStats(const Mutation &mutation) {
+void Fuzzer::writeStats(const Mutation &mutation, const tuple<unordered_set<uint64_t>, unordered_set<uint64_t>> &validJumpis) {
   auto contract = mainContract();
   stringstream ss;
   pt::ptree root;
@@ -140,8 +140,25 @@ void Fuzzer::writeStats(const Mutation &mutation) {
   root.put("speed", (double) fuzzStat.totalExecs / timer.elapsed());
   root.put("queueCycles", fuzzStat.queueCycle);
   root.put("uniqExceptions", uniqExceptions.size());
-  // auto vulDict = {};
-  // root.put("vulnerabilities", vulDict);
+
+  pt::ptree vulDict;
+  vulDict.put("gasless send", to_string(vulnerabilities[GASLESS_SEND]).c_str());
+  vulDict.put("dangerous delegatecall", to_string(vulnerabilities[DELEGATE_CALL]).c_str());
+  vulDict.put("exception disorder", to_string(vulnerabilities[EXCEPTION_DISORDER]).c_str());
+  vulDict.put("freezing ether", to_string(vulnerabilities[FREEZING]).c_str());
+  vulDict.put("reentrancy", to_string(vulnerabilities[REENTRANCY]).c_str());
+  vulDict.put("integer overflow", to_string(vulnerabilities[OVERFLOWING]).c_str());
+  vulDict.put("timestamp dependency", to_string(vulnerabilities[TIME_DEPENDENCY]).c_str());
+  vulDict.put("integer underflow", to_string(vulnerabilities[UNDERFLOWING]).c_str());
+  vulDict.put("block number dependency", to_string(vulnerabilities[NUMBER_DEPENDENCY]).c_str());
+  root.add_child("vulnerabilities", vulDict);
+
+  auto totalBranches = (get<0>(validJumpis).size() + get<1>(validJumpis).size()) * 2;
+  auto numBranches = to_string(totalBranches);
+  auto coverage = to_string((uint64_t)((float) tracebits.size() / (float) totalBranches * 100)) + "%";
+  root.put("branches", numBranches.c_str());
+  root.put("coverage", coverage.c_str());
+  
   pt::write_json(ss, root);
   stats << ss.str() << endl;
   stats.close();
@@ -275,12 +292,12 @@ void Fuzzer::start() {
             break;
           }
           case JSON: {
-            writeStats(mutation);
+            writeStats(mutation, validJumpis);
             break;
           }
           case BOTH: {
             showStats(mutation, validJumpis);
-            writeStats(mutation);
+            writeStats(mutation, validJumpis);
             break;
           }
         }
@@ -307,12 +324,12 @@ void Fuzzer::start() {
                 break;
               }
               case JSON: {
-                writeStats(mutation);
+                writeStats(mutation, validJumpis);
                 break;
               }
               case BOTH: {
                 showStats(mutation, validJumpis);
-                writeStats(mutation);
+                writeStats(mutation, validJumpis);
                 break;
               }
             }
@@ -327,12 +344,12 @@ void Fuzzer::start() {
                 break;
               }
               case JSON: {
-                writeStats(mutation);
+                writeStats(mutation, validJumpis);
                 break;
               }
               case BOTH: {
                 showStats(mutation, validJumpis);
-                writeStats(mutation);
+                writeStats(mutation, validJumpis);
                 break;
               }
             }

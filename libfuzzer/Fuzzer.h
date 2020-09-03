@@ -63,10 +63,10 @@ namespace fuzzer {
     Timer timer;
     FuzzParam fuzzParam;
     FuzzStat fuzzStat;
-    void writeStats(const Mutation &mutation);
-	void writeVulnerability(bytes data, string prefix);
-	void writeTestcase(bytes data, string prefix);
-	void writeException(bytes data, string prefix);
+    void writeStats(const Mutation &mutation, const tuple<unordered_set<uint64_t>, unordered_set<uint64_t>> &validJumpis);
+    void writeVulnerability(bytes data, string prefix);
+    void writeTestcase(bytes data, string prefix);
+    void writeException(bytes data, string prefix);
     ContractInfo mainContract();
     public:
       Fuzzer(FuzzParam fuzzParam);
