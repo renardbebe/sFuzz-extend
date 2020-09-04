@@ -32,7 +32,18 @@ struct OpcodePayload {
 struct OpcodeContext {
   u256 level;
   OpcodePayload payload;
+
   OpcodeContext(u256 _level, OpcodePayload _payload): level(_level), payload(_payload) {}
+  bool operator == (const OpcodeContext &x) const {
+		return(level == x.level && 
+           (payload.data.size() < 4 ||
+           (payload.data.size() >= 4 &&
+           payload.data[0] == x.payload.data[0] && 
+           payload.data[1] == x.payload.data[1] && 
+           payload.data[2] == x.payload.data[2] && 
+           payload.data[3] == x.payload.data[3]))
+          );
+	}
 };
 
 using SingleFunction = vector<OpcodeContext>;

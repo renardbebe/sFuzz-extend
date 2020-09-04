@@ -153,6 +153,30 @@ void Fuzzer::writeStats(const Mutation &mutation, const tuple<unordered_set<uint
   vulDict.put("block number dependency", to_string(vulnerabilities[NUMBER_DEPENDENCY]).c_str());
   root.add_child("vulnerabilities", vulDict);
 
+  // get location
+  auto fileNameAndPath = contract.contractName.substr(contract.contractName.find("/") + 1);
+  auto fileName = fileNameAndPath.substr(0, fileNameAndPath.find(".sol"));
+  ofstream fout(contract.contractName + "/outputs.txt");
+
+  for (uint8_t i = 0; i < 9; i ++) {
+    if (i == 0) { fout << "* GASLESS_SEND: " << vulnerable_funcs[i].size() << endl; }
+    else if (i == 1) { fout << "* EXCEPTION_DISORDER: " << vulnerable_funcs[i].size() << endl; }
+    else if (i == 2) { fout << "* TIME_DEPENDENCY: " << vulnerable_funcs[i].size() << endl; }
+    else if (i == 3) { fout << "* NUMBER_DEPENDENCY: " << vulnerable_funcs[i].size() << endl; }
+    else if (i == 4) { fout << "* DELEGATE_CALL: " << vulnerable_funcs[i].size() << endl; }
+    else if (i == 5) { fout << "* REENTRANCY: " << vulnerable_funcs[i].size() << endl; }
+    else if (i == 6) { fout << "* FREEZING: " << vulnerable_funcs[i].size() << endl; }
+    else if (i == 7) { fout << "* OVERFLOW: " << vulnerable_funcs[i].size() << endl; }
+    else if (i == 8) { fout << "* UNDERFLOW: " << vulnerable_funcs[i].size() << endl; }
+    
+    vector<vector<unsigned char> > sigs;
+    for (uint8_t j = 0; j < vulnerable_funcs[i].size(); j ++) {
+      vector<unsigned char> sig(vulnerable_funcs[i][j].payload.data.begin(), 
+                                vulnerable_funcs[i][j].payload.data.begin() + 4);
+      fout << sig << endl;
+    }
+  }
+
   auto totalBranches = (get<0>(validJumpis).size() + get<1>(validJumpis).size()) * 2;
   auto numBranches = to_string(totalBranches);
   auto coverage = to_string((uint64_t)((float) tracebits.size() / (float) totalBranches * 100)) + "%";
@@ -285,7 +309,9 @@ void Fuzzer::start() {
       if (!numUncoveredBranches) {
         auto curItem = (*leaders.begin()).second.item;
         Mutation mutation(curItem, make_tuple(codeDict, addressDict));
-        vulnerabilities = container.analyze();
+        auto pairs = container.analyze();
+        vulnerabilities = pairs.first;
+        vulnerable_funcs = pairs.second;
         switch (fuzzParam.reporter) {
           case TERMINAL: {
             showStats(mutation, validJumpis);
@@ -316,7 +342,9 @@ void Fuzzer::start() {
           if (!showSet.count(duration)) {
             showSet.insert(duration);
             if (duration % fuzzParam.analyzingInterval == 0) {
-              vulnerabilities = container.analyze();
+              auto pairs = container.analyze();
+              vulnerabilities = pairs.first;
+              vulnerable_funcs = pairs.second;
             }
             switch (fuzzParam.reporter) {
               case TERMINAL: {
@@ -337,7 +365,9 @@ void Fuzzer::start() {
           /* Stop program */
           u64 speed = (u64)(fuzzStat.totalExecs / timer.elapsed());
           if (timer.elapsed() > fuzzParam.duration || speed <= 10 || !predicates.size()) {
-            vulnerabilities = container.analyze();
+            auto pairs = container.analyze();
+            vulnerabilities = pairs.first;
+            vulnerable_funcs = pairs.second;
             switch(fuzzParam.reporter) {
               case TERMINAL: {
                 showStats(mutation, validJumpis);

@@ -15,7 +15,7 @@ namespace fuzzer {
     public:
       TargetContainer();
       ~TargetContainer();
-      vector<int> analyze() { return oracleFactory->analyze(); }
+      pair<vector<int>, vector<vector<OpcodeContext> > > analyze() { return oracleFactory->analyze(); }
       TargetExecutive loadContract(bytes code, ContractABI ca);
   };
 }

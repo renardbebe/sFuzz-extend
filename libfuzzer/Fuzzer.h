@@ -54,6 +54,7 @@ namespace fuzzer {
   };
   class Fuzzer {
     vector<int> vulnerabilities;
+    vector<vector<OpcodeContext> > vulnerable_funcs;
     vector<string> queues;
     unordered_set<string> tracebits;
     unordered_set<string> predicates;
