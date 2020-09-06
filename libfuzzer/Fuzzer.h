@@ -32,6 +32,7 @@ namespace fuzzer {
     int duration;
     int analyzingInterval;
     string attackerName;
+    int ignoring;
   };
   struct FuzzStat {
     int idx = 0;

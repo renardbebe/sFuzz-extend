@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
   string contractName = "";
   string sourceFile = "";
   string attackerName = DEFAULT_ATTACKER;
+  int ignoring = 1;
   po::options_description desc("Allowed options");
   po::variables_map vm;
   
@@ -42,7 +43,8 @@ int main(int argc, char* argv[]) {
     ("mode,m", po::value(&mode), "choose mode: 0 - AFL ")
     ("reporter,r", po::value(&reporter), "choose reporter: 0 - TERMINAL | 1 - JSON")
     ("duration,d", po::value(&duration), "fuzz duration")
-    ("attacker", po::value(&attackerName), "choose attacker: NormalAttacker | ReentrancyAttacker");
+    ("attacker", po::value(&attackerName), "choose attacker: NormalAttacker | ReentrancyAttacker")
+    ("ignoring,i", po::value(&ignoring), "ignore exsisting files");
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
   /* Show help message */
@@ -53,7 +55,7 @@ int main(int argc, char* argv[]) {
     fuzzMe << "#!/bin/bash" << endl;
     fuzzMe << compileSolFiles(contractsFolder);
     fuzzMe << compileSolFiles(assetsFolder);
-    fuzzMe << fuzzJsonFiles(contractsFolder, assetsFolder, duration, mode, reporter, attackerName);
+    fuzzMe << fuzzJsonFiles(contractsFolder, assetsFolder, duration, mode, reporter, attackerName, ignoring);
     fuzzMe.close();
     showGenerate();
     return 0;
@@ -69,6 +71,8 @@ int main(int argc, char* argv[]) {
     fuzzParam.reporter = (Reporter) reporter;
     fuzzParam.analyzingInterval = DEFAULT_ANALYZING_INTERVAL;
     fuzzParam.attackerName = attackerName;
+    fuzzParam.ignoring = ignoring;
+
     Fuzzer fuzzer(fuzzParam);
     cout << ">> Fuzz " << contractName << endl;
     fuzzer.start();

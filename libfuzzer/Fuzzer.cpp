@@ -5,6 +5,7 @@
 #include "ContractABI.h"
 #include "Dictionary.h"
 #include "BytecodeBranch.h"
+#include <unistd.h>
 
 using namespace dev;
 using namespace eth;
@@ -286,6 +287,11 @@ void Fuzzer::start() {
       addressDict.fromAddress(executive.addr.asBytes());
     } else {
       auto contractName = contractInfo.contractName;
+      if (fuzzParam.ignoring == 1 && access(contractName.c_str(), 0) != -1) {
+        cout << contractName << " Exsist!\n";
+        continue;
+      }
+
       boost::filesystem::remove_all(contractName);
       boost::filesystem::create_directory(contractName);
       codeDict.fromCode(bin);
@@ -294,14 +300,14 @@ void Fuzzer::start() {
       snippets = bytecodeBranch.snippets;
       if (!(get<0>(validJumpis).size() + get<1>(validJumpis).size())) {
         cout << "No valid jumpi" << endl;
-		// exit(0);
+		    exit(0);
       }
       saveIfInterest(executive, ca.randomTestcase(), 0, validJumpis);
       int originHitCount = leaders.size();
       // No branch
       if (!originHitCount) {
         cout << "No branch" << endl;
-		// exit(0);
+		    exit(0);
       }
       // There are uncovered branches or not
       auto fi = [&](const pair<string, Leader> &p) { return p.second.comparisonValue != 0;};
