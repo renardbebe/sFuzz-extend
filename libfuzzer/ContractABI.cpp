@@ -1,5 +1,6 @@
 #include <regex>
 #include "ContractABI.h"
+#include <iostream>
 
 using namespace std;
 namespace pt = boost::property_tree;
@@ -234,7 +235,7 @@ namespace fuzzer {
     };
     /* sender env */
     bytes sender(32, 0);
-    bytes block(32, 0);
+    bytes block(32, 0);  // important
     ret.insert(ret.end(), sender.begin(), sender.end());
     ret.insert(ret.end(), block.begin(), block.end());
     for (auto fd : this->fds) {
@@ -243,7 +244,7 @@ namespace fuzzer {
           case 0: {
             int realLen = td.isDynamic ? consultRealLen() : 32;
             int containerLen = consultContainerLen(realLen);
-            bytes data(containerLen, 0);
+            bytes data(containerLen, 0);  // important
             ret.insert(ret.end(), data.begin(), data.end());
             break;
           }
@@ -252,7 +253,7 @@ namespace fuzzer {
             for (int i = 0; i < numElem; i += 1) {
               int realLen = td.isDynamic ? consultRealLen() : 32;
               int containerLen = consultContainerLen(realLen);
-              bytes data = bytes(containerLen, 0);
+              bytes data = bytes(containerLen, 0);  // important
               ret.insert(ret.end(), data.begin(), data.end());
             }
             break;
@@ -264,7 +265,7 @@ namespace fuzzer {
               for (int j = 0; j < numSubElem; j += 1) {
                 int realLen = td.isDynamic ? consultRealLen() : 32;
                 int containerLen = consultContainerLen(realLen);
-                bytes data = bytes(containerLen, 0);
+                bytes data = bytes(containerLen, 0);  // important
                 ret.insert(ret.end(), data.begin(), data.end());
               }
             }
@@ -273,6 +274,7 @@ namespace fuzzer {
         }
       }
     }
+    // cout << "Initial seed: " << ret << endl;
     return ret;
   }
   
@@ -308,6 +310,9 @@ namespace fuzzer {
         this->fds.push_back(FuncDef(name, tds, payable));
       }
     };
+    // change the sequence of function calls
+    srand((unsigned)time(NULL));
+    random_shuffle(this->fds.begin(), this->fds.end());
   }
   
   bytes ContractABI::encodeConstructor() {

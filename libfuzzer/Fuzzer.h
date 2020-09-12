@@ -42,7 +42,7 @@ namespace fuzzer {
     int queueCycle = 0;
     int stageFinds[32];
     double lastNewPath = 0;
-	int numTest = 0;
+  	int numTest = 0;
     int numException = 0;
     int numJumpis = 0;
   };

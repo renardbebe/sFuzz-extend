@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     ("reporter,r", po::value(&reporter), "choose reporter: 0 - TERMINAL | 1 - JSON")
     ("duration,d", po::value(&duration), "fuzz duration")
     ("attacker", po::value(&attackerName), "choose attacker: NormalAttacker | ReentrancyAttacker")
-    ("ignoring,i", po::value(&ignoring), "1 - ignore exsisting files");
+    ("ignoring,i", po::value(&ignoring), "ignore exsisting files");
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
   /* Show help message */
