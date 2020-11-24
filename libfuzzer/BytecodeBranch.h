@@ -12,6 +12,7 @@ namespace fuzzer {
       unordered_set<uint64_t> runtimeJumpis;
     public:
       unordered_map<uint64_t, string> snippets;
+      vector<pair<uint64_t, Instruction>> instructions;
       BytecodeBranch(const ContractInfo &contractInfo);
       pair<unordered_set<uint64_t>, unordered_set<uint64_t>> findValidJumpis();
       static vector<vector<uint64_t>> decompressSourcemap(string srcmap);

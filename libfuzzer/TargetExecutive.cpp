@@ -9,7 +9,7 @@ namespace fuzzer {
     program->invoke(addr, CONTRACT_CONSTRUCTOR, ca.encodeConstructor(), ca.isPayable(""), onOp);
   }
 
-  TargetContainerResult TargetExecutive::exec(bytes data, const tuple<unordered_set<uint64_t>, unordered_set<uint64_t>>& validJumpis) {
+  TargetContainerResult TargetExecutive::exec(bytes data, const tuple<unordered_set<uint64_t>, unordered_set<uint64_t>>& validJumpis, vector<pair<uint64_t, Instruction>> &instructions) {
     /* Save all hit branches to trace_bits */
     Instruction prevInst;
     RecordParam recordParam;
@@ -23,6 +23,14 @@ namespace fuzzer {
     size_t savepoint = program->savepoint();
     OnOpFunc onOp = [&](u64, u64 pc, Instruction inst, bigint, bigint, bigint, VMFace const* _vm, ExtVMFace const* ext) {
       auto vm = dynamic_cast<LegacyVM const*>(_vm);
+      // erase inst in instructions vector
+      vector<pair<uint64_t, Instruction> >::iterator iter;
+      for (iter = instructions.begin(); iter != instructions.end(); iter++) {
+        if ((*iter).second == inst) {
+          instructions.erase(iter);
+        }
+      }
+      // std::cout << instructions.size() << endl;
       /* Oracle analyze data */
       switch (inst) {
         case Instruction::CALL:

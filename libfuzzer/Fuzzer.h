@@ -61,6 +61,7 @@ namespace fuzzer {
     unordered_set<string> predicates;
     unordered_map<string, Leader> leaders;
     unordered_map<uint64_t, string> snippets;
+    vector<pair<uint64_t, Instruction>> instructions;
     unordered_set<string> uniqExceptions;
     Timer timer;
     FuzzParam fuzzParam;
@@ -72,7 +73,7 @@ namespace fuzzer {
     ContractInfo mainContract();
     public:
       Fuzzer(FuzzParam fuzzParam);
-      FuzzItem saveIfInterest(TargetExecutive& te, bytes data, uint64_t depth, const tuple<unordered_set<uint64_t>, unordered_set<uint64_t>> &validJumpis);
+      FuzzItem saveIfInterest(TargetExecutive& te, bytes data, uint64_t depth, const tuple<unordered_set<uint64_t>, unordered_set<uint64_t>> &validJumpis, vector<pair<uint64_t, Instruction>> instructions);
       void showStats(const Mutation &mutation, const tuple<unordered_set<uint64_t>, unordered_set<uint64_t>> &validJumpis);
       void updateTracebits(unordered_set<string> tracebits);
       void updatePredicates(unordered_map<string, u256> predicates);

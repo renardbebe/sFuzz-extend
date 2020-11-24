@@ -18,6 +18,9 @@ namespace fuzzer {
     for (auto progIt : progInfo) {
       auto opcodes = decodeBytecode(get<0>(progIt));
       auto isRuntime = get<2>(progIt);
+      if (isRuntime) {
+        instructions = opcodes;
+      }
       auto decompressedSourcemap = decompressSourcemap(get<1>(progIt));
       // offset - len - pc
       vector<tuple<uint64_t, uint64_t, uint64_t>> candidates;

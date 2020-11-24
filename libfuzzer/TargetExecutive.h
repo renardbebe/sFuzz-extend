@@ -31,7 +31,7 @@ namespace fuzzer {
         this->program = program;
         this->oracleFactory = oracleFactory;
       }
-      TargetContainerResult exec(bytes data, const tuple<unordered_set<uint64_t>, unordered_set<uint64_t>> &validJumpis);
+      TargetContainerResult exec(bytes data, const tuple<unordered_set<uint64_t>, unordered_set<uint64_t>> &validJumpis, vector<pair<uint64_t, Instruction>> &instructions);
       void deploy(bytes data, OnOpFunc onOp);
   };
 }
